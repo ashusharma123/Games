@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mind Match Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #1e90ff, #060b23);
+      color: #f9fafb;
+    }
+
+    .game-wrapper {
+      background: rgba(15, 23, 42, 0.96);
+      padding: 24px;
+      border-radius: 18px;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
+      width: min(480px, 94vw);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 10px;
+    }
+
+    .game-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.6);
+      color: #7dd3fc;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      font-size: 0.85rem;
+      color: #9ca3af;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .stats span strong {
+      color: #e5e7eb;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    button {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      background: linear-gradient(135deg, #38bdf8, #22c55e);
+      color: #0f172a;
+      box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+      box-shadow: 0 10px 24px rgba(34, 197, 94, 0.5);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.35);
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(60px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .card {
+      position: relative;
+      width: 100%;
+      padding-bottom: 100%; /* square */
+      perspective: 900px;
+      cursor: pointer;
+    }
+
+    .card-inner {
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      transform-style: preserve-3d;
+      transition: transform 0.32s ease;
+    }
+
+    .card.flipped .card-inner,
+    .card.matched .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backface-visibility: hidden;
+      font-size: clamp(1.5rem, 4vw, 2.1rem);
+    }
+
+    .card-front {
+      background: linear-gradient(145deg, #0f172a, #020617);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+    }
+
+    .card-back {
+      transform: rotateY(180deg);
+      background: radial-gradient(circle at top, #22c55e, #16a34a);
+      border: 1px solid rgba(190, 242, 100, 0.9);
+      color: #022c22;
+      font-weight: 600;
+    }
+
+    .card.matched .card-back {
+      background: radial-gradient(circle at top, #38bdf8, #0369a1);
+      border-color: rgba(191, 219, 254, 0.9);
+    }
+
+    .footer-note {
+      margin-top: 10px;
+      font-size: 0.7rem;
+      text-align: right;
+      color: #6b7280;
+    }
+
+    @media (max-width: 420px) {
+      .game-wrapper {
+        padding: 18px;
+        border-radius: 16px;
+      }
+
+      .game-title {
+        font-size: 1rem;
+      }
+
+      .board {
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-wrapper">
+    <div class="game-header">
+      <div>
+        <div class="game-title">Mind Match</div>
+        <div style="font-size: 0.78rem; color:#9ca3af; margin-top:3px;">
+          Flip cards &amp; train your focus
+        </div>
+      </div>
+      <span class="badge">Brain Game</span>
+    </div>
+
+    <div class="stats">
+      <span>Moves: <strong id="moves">0</strong></span>
+      <span>Time: <strong id="time">0s</strong></span>
+      <span>Best: <strong id="best">–</strong></span>
+    </div>
+
+    <div class="controls">
+      <span id="status">Tap any card to begin</span>
+      <button id="restartBtn">Restart</button>
+    </div>
+
+    <div class="board" id="board"></div>
+
+    <div class="footer-note">
+      Tip: Try to finish in minimum moves &amp; time.
+    </div>
+  </div>
+
+  <script>
+    const icons = ["🍎", "🍋", "🍇", "🍉", "🍒", "🥝", "🍊", "🍍"];
+    const boardEl = document.getElementById("board");
+    const movesEl = document.getElementById("moves");
+    const timeEl = document.getElementById("time");
+    const bestEl = document.getElementById("best");
+    const statusEl = document.getElementById("status");
+    const restartBtn = document.getElementById("restartBtn");
+
+    let firstCard = null;
+    let lockBoard = false;
+    let moves = 0;
+    let matchedPairs = 0;
+    let startTime = null;
+    let timerInterval = null;
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function createBoard() {
+      boardEl.innerHTML = "";
+      const cardValues = shuffle([...icons, ...icons]);
+      cardValues.forEach((icon) => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.dataset.value = icon;
+
+        const inner = document.createElement("div");
+        inner.classList.add("card-inner");
+
+        const front = document.createElement("div");
+        front.classList.add("card-face", "card-front");
+        front.textContent = "?";
+
+        const back = document.createElement("div");
+        back.classList.add("card-face", "card-back");
+        back.textContent = icon;
+
+        inner.appendChild(front);
+        inner.appendChild(back);
+        card.appendChild(inner);
+        boardEl.appendChild(card);
+
+        card.addEventListener("click", () => handleCardClick(card));
+      });
+    }
+
+    function startTimer() {
+      startTime = Date.now();
+      timerInterval = setInterval(() => {
+        const seconds = Math.floor((Date.now() - startTime) / 1000);
+        timeEl.textContent = seconds + "s";
+      }, 500);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    function resetGame() {
+      firstCard = null;
+      lockBoard = false;
+      moves = 0;
+      matchedPairs = 0;
+      movesEl.textContent = "0";
+      timeEl.textContent = "0s";
+      statusEl.textContent = "Tap any card to begin";
+      stopTimer();
+      startTime = null;
+      createBoard();
+    }
+
+    function updateBest() {
+      const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+      const score = { moves, time: elapsedSeconds };
+      const key = "mindMatchBest";
+      const prev = localStorage.getItem(key);
+
+      if (!prev) {
+        localStorage.setItem(key, JSON.stringify(score));
+        renderBest(score);
+        return;
+      }
+      const best = JSON.parse(prev);
+
+      // Better if fewer moves; tie-breaker: less time
+      const isBetter =
+        score.moves < best.moves ||
+        (score.moves === best.moves && score.time < best.time);
+
+      if (isBetter) {
+        localStorage.setItem(key, JSON.stringify(score));
+        renderBest(score);
+      } else {
+        renderBest(best);
+      }
+    }
+
+    function renderBest(score) {
+      if (!score) {
+        bestEl.textContent = "–";
+        return;
+      }
+      bestEl.textContent = score.moves + " / " + score.time + "s";
+    }
+
+    function loadBest() {
+      const key = "mindMatchBest";
+      const prev = localStorage.getItem(key);
+      if (prev) {
+        try {
+          const best = JSON.parse(prev);
+          renderBest(best);
+        } catch {
+          bestEl.textContent = "–";
+        }
+      } else {
+        bestEl.textContent = "–";
+      }
+    }
+
+    function handleCardClick(card) {
+      if (lockBoard) return;
+      if (card === firstCard) return;
+
+      // start timer on first move
+      if (!startTime) {
+        startTimer();
+        statusEl.textContent = "Match all pairs!";
+      }
+
+      card.classList.add("flipped");
+
+      if (!firstCard) {
+        firstCard = card;
+        return;
+      }
+
+      moves++;
+      movesEl.textContent = moves;
+      const secondCard = card;
+
+      const match = firstCard.dataset.value === secondCard.dataset.value;
+
+      if (match) {
+        firstCard.classList.add("matched");
+        secondCard.classList.add("matched");
+        firstCard = null;
+        matchedPairs++;
+
+        if (matchedPairs === icons.length) {
+          // game complete
+          stopTimer();
+          statusEl.textContent = "Brilliant! You cleared the board 🎉";
+          updateBest();
+        }
+      } else {
+        lockBoard = true;
+        setTimeout(() => {
+          firstCard.classList.remove("flipped");
+          secondCard.classList.remove("flipped");
+          firstCard = null;
+          lockBoard = false;
+        }, 650);
+      }
+    }
+
+    restartBtn.addEventListener("click", resetGame);
+
+    // init
+    createBoard();
+    loadBest();
+  </script>
+</body>
+</html>
