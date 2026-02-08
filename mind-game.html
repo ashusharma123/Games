@@ -2,400 +2,647 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Mind Match Game</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BagvanGhr — Digital Caretaker for Every Tree</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="BagvanGhr is an AI-powered farming assistant for Himachal orchard owners. Diagnose plant problems, follow seasonal guidance, and manage smart schedules." />
   <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --brand: #16a34a;
+      --brand-dark: #0f766e;
+      --accent: #2563eb;
+      --border: #e2e8f0;
+      --shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+      --radius: 20px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b1220;
+        --surface: #111827;
+        --text: #f8fafc;
+        --muted: #94a3b8;
+        --brand: #22c55e;
+        --brand-dark: #14b8a6;
+        --accent: #60a5fa;
+        --border: #1f2937;
+        --shadow: 0 18px 40px rgba(15, 23, 42, 0.5);
+      }
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     body {
-      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1100px, 92vw);
+      margin: 0 auto;
+      padding: 24px 0 72px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+    }
+
+    .nav {
       display: flex;
       align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle at top, #1e90ff, #060b23);
-      color: #f9fafb;
-    }
-
-    .game-wrapper {
-      background: rgba(15, 23, 42, 0.96);
-      padding: 24px;
-      border-radius: 18px;
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
-      width: min(480px, 94vw);
-      border: 1px solid rgba(148, 163, 184, 0.4);
-    }
-
-    .game-header {
-      display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      gap: 10px;
+      gap: 16px;
+      padding: 16px 0;
     }
 
-    .game-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: #e5e7eb;
-    }
-
-    .badge {
-      font-size: 0.7rem;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.6);
-      color: #7dd3fc;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-    }
-
-    .stats {
+    .brand {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
-      font-size: 0.85rem;
-      color: #9ca3af;
       gap: 10px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .brand span {
+      color: var(--brand);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
-    .stats span strong {
-      color: #e5e7eb;
-    }
-
-    .controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-      gap: 8px;
-      font-size: 0.8rem;
-      color: #6b7280;
-    }
-
-    button {
+    .btn {
       border: none;
-      outline: none;
-      cursor: pointer;
-      padding: 6px 12px;
+      background: var(--brand);
+      color: #ffffff;
+      padding: 12px 18px;
       border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      background: linear-gradient(135deg, #38bdf8, #22c55e);
-      color: #0f172a;
-      box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
-      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease;
-      white-space: nowrap;
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.02);
-      box-shadow: 0 10px 24px rgba(34, 197, 94, 0.5);
-    }
-
-    button:active {
-      transform: translateY(0);
-      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.35);
-    }
-
-    .board {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(60px, 1fr));
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    .card {
-      position: relative;
-      width: 100%;
-      padding-bottom: 100%; /* square */
-      perspective: 900px;
+      font-weight: 600;
+      font-size: 0.9rem;
       cursor: pointer;
+      box-shadow: 0 10px 24px rgba(22, 163, 74, 0.24);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .card-inner {
-      position: absolute;
-      inset: 0;
-      border-radius: 12px;
-      transform-style: preserve-3d;
-      transition: transform 0.32s ease;
+    .btn.secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      box-shadow: none;
     }
 
-    .card.flipped .card-inner,
-    .card.matched .card-inner {
-      transform: rotateY(180deg);
+    .btn:active {
+      transform: scale(0.98);
     }
 
-    .card-face {
-      position: absolute;
-      inset: 0;
-      border-radius: 12px;
+    .hero {
+      display: grid;
+      gap: 28px;
+      padding: 40px 0 20px;
+    }
+
+    .hero-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      line-height: 1.1;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .tip-banner {
+      background: linear-gradient(120deg, var(--brand-dark), var(--accent));
+      color: #fff;
+      padding: 14px 16px;
+      border-radius: 16px;
+      font-weight: 600;
       display: flex;
       align-items: center;
-      justify-content: center;
-      backface-visibility: hidden;
-      font-size: clamp(1.5rem, 4vw, 2.1rem);
+      justify-content: space-between;
+      gap: 12px;
     }
 
-    .card-front {
-      background: linear-gradient(145deg, #0f172a, #020617);
-      border: 1px solid rgba(148, 163, 184, 0.5);
+    .badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
     }
 
-    .card-back {
-      transform: rotateY(180deg);
-      background: radial-gradient(circle at top, #22c55e, #16a34a);
-      border: 1px solid rgba(190, 242, 100, 0.9);
-      color: #022c22;
+    .card-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .info-card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+      display: grid;
+      gap: 10px;
+    }
+
+    .info-card h3 {
+      font-size: 1.05rem;
+    }
+
+    .section {
+      margin-top: 36px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .section-title {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .section-title h2 {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+    }
+
+    .section-title p {
+      color: var(--muted);
+    }
+
+    .flow-steps {
+      display: grid;
+      gap: 12px;
+    }
+
+    .step {
+      display: grid;
+      gap: 8px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px dashed color-mix(in srgb, var(--brand) 40%, var(--border));
+      background: color-mix(in srgb, var(--surface) 85%, var(--brand) 5%);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      border-radius: 999px;
+      padding: 4px 10px;
+      background: color-mix(in srgb, var(--brand) 18%, transparent);
+      color: var(--brand);
       font-weight: 600;
     }
 
-    .card.matched .card-back {
-      background: radial-gradient(circle at top, #38bdf8, #0369a1);
-      border-color: rgba(191, 219, 254, 0.9);
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 10px;
     }
 
-    .footer-note {
-      margin-top: 10px;
-      font-size: 0.7rem;
-      text-align: right;
-      color: #6b7280;
+    .icon-card {
+      background: var(--surface);
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      font-weight: 600;
     }
 
-    @media (max-width: 420px) {
-      .game-wrapper {
-        padding: 18px;
-        border-radius: 16px;
+    .two-col {
+      display: grid;
+      gap: 20px;
+    }
+
+    .ai-panel {
+      display: grid;
+      gap: 14px;
+      padding: 20px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .result-card {
+      background: color-mix(in srgb, var(--surface) 70%, var(--brand) 6%);
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      display: grid;
+      gap: 8px;
+    }
+
+    .calendar {
+      display: grid;
+      gap: 10px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 16px;
+      background: var(--surface);
+    }
+
+    .calendar .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.92rem;
+    }
+
+    .calendar .row span {
+      color: var(--muted);
+    }
+
+    .tag {
+      background: color-mix(in srgb, var(--accent) 15%, transparent);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .footer {
+      margin-top: 40px;
+      padding: 24px 0 40px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.9rem;
+      display: grid;
+      gap: 12px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 12px 16px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      font-size: 0.9rem;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (min-width: 860px) {
+      .hero {
+        grid-template-columns: 1.2fr 0.8fr;
+        align-items: center;
       }
 
-      .game-title {
-        font-size: 1rem;
-      }
-
-      .board {
-        gap: 8px;
+      .two-col {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
   </style>
 </head>
 <body>
-  <div class="game-wrapper">
-    <div class="game-header">
-      <div>
-        <div class="game-title">Mind Match</div>
-        <div style="font-size: 0.78rem; color:#9ca3af; margin-top:3px;">
-          Flip cards &amp; train your focus
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        🌿 <div>Bagvan<span>Ghr</span></div>
+      </div>
+      <div class="nav-actions">
+        <button class="btn secondary" data-toast="Language set to Hindi">हिंदी</button>
+        <button class="btn secondary" data-toast="Voice guidance ready">Voice Guide</button>
+        <button class="btn" data-toast="Uploading photo">Upload Tree Photo</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero-card">
+        <div class="pill">Digital caretaker for every tree</div>
+        <h1>BagvanGhr — AI-powered orchard support for Himachal Pradesh.</h1>
+        <p>
+          Simple, fast, and farmer-friendly. Diagnose plant problems from photos, get season-wise guidance, and follow
+          smart schedules based on your district, altitude, and crop.
+        </p>
+        <div class="hero-actions">
+          <button class="btn" data-toast="Photo upload started">Upload Tree Photo</button>
+          <button class="btn secondary" data-toast="Onboarding started">Start Setup</button>
+        </div>
+        <div class="tip-banner" aria-live="polite">
+          <div id="tipText">Seasonal Tip: Prune apple trees before bud break for strong canopy.</div>
+          <span class="badge">Auto</span>
         </div>
       </div>
-      <span class="badge">Brain Game</span>
-    </div>
+      <div class="info-card">
+        <h3>Trusted for Himachal orchards</h3>
+        <p>AI trained for apples, pears, grapes, plums, peaches, apricots, and local stone fruits.</p>
+        <div class="icon-grid">
+          <div class="icon-card">🍎 Apple</div>
+          <div class="icon-card">🍐 Pear</div>
+          <div class="icon-card">🍇 Grapes</div>
+          <div class="icon-card">🍑 Peach</div>
+          <div class="icon-card">🟣 Plum</div>
+          <div class="icon-card">🍊 Apricot</div>
+        </div>
+      </div>
+    </section>
 
-    <div class="stats">
-      <span>Moves: <strong id="moves">0</strong></span>
-      <span>Time: <strong id="time">0s</strong></span>
-      <span>Best: <strong id="best">–</strong></span>
-    </div>
+    <section class="section">
+      <div class="section-title">
+        <h2>1) Onboarding / User Setup</h2>
+        <p>Quick setup with minimal typing so every farmer can start in under 60 seconds.</p>
+      </div>
+      <div class="card-grid">
+        <div class="info-card">
+          <h3>Language & Location</h3>
+          <p>Select English/Hindi, district, altitude, and climate zone.</p>
+          <button class="btn secondary" data-toast="Location detected: Shimla">Detect Location</button>
+        </div>
+        <div class="info-card">
+          <h3>Orchard Details</h3>
+          <p>Pick crops, orchard size, and tree age group.</p>
+          <button class="btn secondary" data-toast="Orchard saved">Save Orchard</button>
+        </div>
+        <div class="info-card">
+          <h3>Preference Setup</h3>
+          <p>Choose notification method: SMS, email, or browser alerts.</p>
+          <button class="btn secondary" data-toast="Alerts enabled">Enable Alerts</button>
+        </div>
+      </div>
+    </section>
 
-    <div class="controls">
-      <span id="status">Tap any card to begin</span>
-      <button id="restartBtn">Restart</button>
-    </div>
+    <section class="section">
+      <div class="section-title">
+        <h2>2) AI Photo-Based Problem Detection (Core Feature)</h2>
+        <p>Upload a tree, leaf, or fruit photo. Add voice or text. Get explainable results with confidence.</p>
+      </div>
+      <div class="two-col">
+        <div class="ai-panel">
+          <div class="pill">Photo + Voice Input</div>
+          <div class="flow-steps">
+            <div class="step">
+              <strong>Upload Photo</strong>
+              <span>Tap a button, use camera, or upload from gallery.</span>
+              <button class="btn" data-toast="Photo received">Choose Photo</button>
+            </div>
+            <div class="step">
+              <strong>Describe Problem</strong>
+              <span>Optional voice or text: “Leaves curling and sticky.”</span>
+              <button class="btn secondary" data-toast="Recording started">Start Voice</button>
+            </div>
+            <div class="step">
+              <strong>AI Processing</strong>
+              <span>Detect diseases, pests, nutrient issues, frost, or water stress.</span>
+              <button class="btn secondary" data-toast="Analyzing image">Analyze Now</button>
+            </div>
+          </div>
+        </div>
+        <div class="ai-panel">
+          <div class="pill">Result Preview</div>
+          <div class="result-card">
+            <strong>❌ Problem:</strong> Apple scab (fungal)
+          </div>
+          <div class="result-card">
+            <strong>📌 Reason:</strong> Olive-green spots on leaves; humid weather pattern detected.
+          </div>
+          <div class="result-card">
+            <strong>✅ Immediate Action:</strong> Remove infected leaves, apply safe fungicide as per chart.
+          </div>
+          <div class="result-card">
+            <strong>⏳ 7–15 Day Plan:</strong> Follow spray interval, monitor moisture, maintain airflow.
+          </div>
+          <div class="result-card">
+            <strong>⚠️ Avoid:</strong> Over-spraying, mixing incompatible chemicals.
+          </div>
+          <button class="btn" data-toast="Expert review requested">Request Expert Review</button>
+        </div>
+      </div>
+    </section>
 
-    <div class="board" id="board"></div>
+    <section class="section">
+      <div class="section-title">
+        <h2>3) Seasonal Smart Calendar</h2>
+        <p>Auto-generated tasks based on crop, location, altitude, and tree age. Editable and reminder-ready.</p>
+      </div>
+      <div class="calendar">
+        <div class="row"><strong>March</strong> <span>Pruning + dormant spray</span> <span class="tag">High Priority</span></div>
+        <div class="row"><strong>April</strong> <span>Fertilization & soil moisture</span> <span class="tag">Medium</span></div>
+        <div class="row"><strong>May</strong> <span>Pest scouting (aphids, mites)</span> <span class="tag">Weekly</span></div>
+        <div class="row"><strong>June</strong> <span>Fruit thinning & irrigation</span> <span class="tag">Monthly</span></div>
+        <button class="btn" data-toast="Schedule saved">Save Calendar</button>
+      </div>
+    </section>
 
-    <div class="footer-note">
-      Tip: Try to finish in minimum moves &amp; time.
-    </div>
-  </div>
+    <section class="section">
+      <div class="section-title">
+        <h2>4) Crop Knowledge Center</h2>
+        <p>Visual, step-by-step guides with voice support and safe spray charts.</p>
+      </div>
+      <div class="card-grid">
+        <div class="info-card">
+          <h3>Growth Stages</h3>
+          <p>Bud break → flowering → fruit set → harvest guidance.</p>
+          <button class="btn secondary" data-toast="Apple guide opened">Open Apple Guide</button>
+        </div>
+        <div class="info-card">
+          <h3>Pruning Visuals</h3>
+          <p>Quick diagrams for correct pruning cuts and canopy airflow.</p>
+          <button class="btn secondary" data-toast="Pruning visuals opened">View Pruning</button>
+        </div>
+        <div class="info-card">
+          <h3>Safe Spray Charts</h3>
+          <p>Dose + timing + safety notes for people, animals, and environment.</p>
+          <button class="btn secondary" data-toast="Spray chart opened">View Spray Chart</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>5) Weather & Risk Alerts</h2>
+        <p>Localized warnings for frost, rain, hail, and disease outbreaks.</p>
+      </div>
+      <div class="card-grid">
+        <div class="info-card">
+          <h3>🌡 Frost Risk</h3>
+          <p>Tonight: 2°C. Protect blossoms with smoke or covering.</p>
+          <button class="btn secondary" data-toast="Frost alert saved">Save Alert</button>
+        </div>
+        <div class="info-card">
+          <h3>🌧 Rain + Spray Safety</h3>
+          <p>Rain in 36 hours. Avoid spraying now to prevent wash-off.</p>
+          <button class="btn secondary" data-toast="Rain alert saved">Save Alert</button>
+        </div>
+        <div class="info-card">
+          <h3>🪰 Pest Outbreak</h3>
+          <p>Codling moth activity increasing in Kullu zone.</p>
+          <button class="btn secondary" data-toast="Pest alert saved">Track Outbreak</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>6) Personal Orchard Dashboard</h2>
+        <p>At-a-glance tree health summary, tasks, and treatment history.</p>
+      </div>
+      <div class="two-col">
+        <div class="info-card">
+          <h3>Tree Health</h3>
+          <p>92% healthy • 6 trees under watch • 2 require expert review.</p>
+          <button class="btn secondary" data-toast="Health report generated">Download Report</button>
+        </div>
+        <div class="info-card">
+          <h3>Task Progress</h3>
+          <p>8 completed • 3 pending this week • 2 due tomorrow.</p>
+          <button class="btn secondary" data-toast="Tasks updated">Update Tasks</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>7) Offline-Friendly & Voice Interaction</h2>
+        <p>Core guides cached for offline use. Voice input/output for low literacy users.</p>
+      </div>
+      <div class="card-grid">
+        <div class="info-card">
+          <h3>Offline Mode</h3>
+          <p>Save photos and get analysis once internet is back.</p>
+          <button class="btn secondary" data-toast="Offline cache enabled">Enable Offline</button>
+        </div>
+        <div class="info-card">
+          <h3>Voice Assistant</h3>
+          <p>Ask: “Is my tree healthy?” or “What should I do this month?”</p>
+          <button class="btn secondary" data-toast="Voice assistant ready">Try Voice</button>
+        </div>
+        <div class="info-card">
+          <h3>Safety & Trust</h3>
+          <p>No brand bias. Clear dosage, overspray warnings, and eco safety notes.</p>
+          <button class="btn secondary" data-toast="Safety guide opened">Safety Guide</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>8) Complete Website Architecture & Feature Logic</h2>
+        <p>Production-ready blueprint for BagvanGhr.</p>
+      </div>
+      <div class="flow-steps">
+        <div class="step">
+          <strong>Data Inputs</strong>
+          <span>Photo upload, voice/text notes, GPS location, altitude, crop type, orchard size, tree age.</span>
+        </div>
+        <div class="step">
+          <strong>AI Engine</strong>
+          <span>Computer vision + seasonal ML models for Himachal crops, explainable outputs, confidence scores.</span>
+        </div>
+        <div class="step">
+          <strong>Decision Logic</strong>
+          <span>Matches symptoms with local climate, weather forecasts, and disease cycles.</span>
+        </div>
+        <div class="step">
+          <strong>Output Layer</strong>
+          <span>Immediate actions, 7–15 day plans, safety warnings, and expert review flags.</span>
+        </div>
+        <div class="step">
+          <strong>Reminders</strong>
+          <span>Calendar tasks with SMS/email/browser alerts and dynamic rescheduling on weather changes.</span>
+        </div>
+        <div class="step">
+          <strong>Offline & PWA</strong>
+          <span>Cache core guides, sync tasks and photo reports when connectivity returns.</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container footer">
+    <div><strong>BagvanGhr</strong> — Digital caretaker for every tree.</div>
+    <div>Made by Aarush Sharma • Built for Himachal orchard communities.</div>
+    <div>Need help? Call local extension officer or request expert review in-app.</div>
+  </footer>
+
+  <div class="toast" id="toast"></div>
 
   <script>
-    const icons = ["🍎", "🍋", "🍇", "🍉", "🍒", "🥝", "🍊", "🍍"];
-    const boardEl = document.getElementById("board");
-    const movesEl = document.getElementById("moves");
-    const timeEl = document.getElementById("time");
-    const bestEl = document.getElementById("best");
-    const statusEl = document.getElementById("status");
-    const restartBtn = document.getElementById("restartBtn");
+    const tips = [
+      "Seasonal Tip: Prune apple trees before bud break for strong canopy.",
+      "Seasonal Tip: Apply dormant spray in late winter to reduce scab spores.",
+      "Seasonal Tip: For grapes, thin shoots early to improve airflow.",
+      "Seasonal Tip: After hail, remove damaged fruits to prevent rot.",
+      "Seasonal Tip: Use mulch to protect roots from sudden temperature drops."
+    ];
 
-    let firstCard = null;
-    let lockBoard = false;
-    let moves = 0;
-    let matchedPairs = 0;
-    let startTime = null;
-    let timerInterval = null;
+    const tipText = document.getElementById("tipText");
+    const toast = document.getElementById("toast");
+    let tipIndex = 0;
 
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
-    }
+    setInterval(() => {
+      tipIndex = (tipIndex + 1) % tips.length;
+      tipText.textContent = tips[tipIndex];
+    }, 5000);
 
-    function createBoard() {
-      boardEl.innerHTML = "";
-      const cardValues = shuffle([...icons, ...icons]);
-      cardValues.forEach((icon) => {
-        const card = document.createElement("div");
-        card.classList.add("card");
-        card.dataset.value = icon;
-
-        const inner = document.createElement("div");
-        inner.classList.add("card-inner");
-
-        const front = document.createElement("div");
-        front.classList.add("card-face", "card-front");
-        front.textContent = "?";
-
-        const back = document.createElement("div");
-        back.classList.add("card-face", "card-back");
-        back.textContent = icon;
-
-        inner.appendChild(front);
-        inner.appendChild(back);
-        card.appendChild(inner);
-        boardEl.appendChild(card);
-
-        card.addEventListener("click", () => handleCardClick(card));
+    document.querySelectorAll("[data-toast]").forEach((button) => {
+      button.addEventListener("click", () => {
+        toast.textContent = button.dataset.toast;
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 1800);
       });
-    }
-
-    function startTimer() {
-      startTime = Date.now();
-      timerInterval = setInterval(() => {
-        const seconds = Math.floor((Date.now() - startTime) / 1000);
-        timeEl.textContent = seconds + "s";
-      }, 500);
-    }
-
-    function stopTimer() {
-      clearInterval(timerInterval);
-      timerInterval = null;
-    }
-
-    function resetGame() {
-      firstCard = null;
-      lockBoard = false;
-      moves = 0;
-      matchedPairs = 0;
-      movesEl.textContent = "0";
-      timeEl.textContent = "0s";
-      statusEl.textContent = "Tap any card to begin";
-      stopTimer();
-      startTime = null;
-      createBoard();
-    }
-
-    function updateBest() {
-      const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
-      const score = { moves, time: elapsedSeconds };
-      const key = "mindMatchBest";
-      const prev = localStorage.getItem(key);
-
-      if (!prev) {
-        localStorage.setItem(key, JSON.stringify(score));
-        renderBest(score);
-        return;
-      }
-      const best = JSON.parse(prev);
-
-      // Better if fewer moves; tie-breaker: less time
-      const isBetter =
-        score.moves < best.moves ||
-        (score.moves === best.moves && score.time < best.time);
-
-      if (isBetter) {
-        localStorage.setItem(key, JSON.stringify(score));
-        renderBest(score);
-      } else {
-        renderBest(best);
-      }
-    }
-
-    function renderBest(score) {
-      if (!score) {
-        bestEl.textContent = "–";
-        return;
-      }
-      bestEl.textContent = score.moves + " / " + score.time + "s";
-    }
-
-    function loadBest() {
-      const key = "mindMatchBest";
-      const prev = localStorage.getItem(key);
-      if (prev) {
-        try {
-          const best = JSON.parse(prev);
-          renderBest(best);
-        } catch {
-          bestEl.textContent = "–";
-        }
-      } else {
-        bestEl.textContent = "–";
-      }
-    }
-
-    function handleCardClick(card) {
-      if (lockBoard) return;
-      if (card === firstCard) return;
-
-      // start timer on first move
-      if (!startTime) {
-        startTimer();
-        statusEl.textContent = "Match all pairs!";
-      }
-
-      card.classList.add("flipped");
-
-      if (!firstCard) {
-        firstCard = card;
-        return;
-      }
-
-      moves++;
-      movesEl.textContent = moves;
-      const secondCard = card;
-
-      const match = firstCard.dataset.value === secondCard.dataset.value;
-
-      if (match) {
-        firstCard.classList.add("matched");
-        secondCard.classList.add("matched");
-        firstCard = null;
-        matchedPairs++;
-
-        if (matchedPairs === icons.length) {
-          // game complete
-          stopTimer();
-          statusEl.textContent = "Brilliant! You cleared the board 🎉";
-          updateBest();
-        }
-      } else {
-        lockBoard = true;
-        setTimeout(() => {
-          firstCard.classList.remove("flipped");
-          secondCard.classList.remove("flipped");
-          firstCard = null;
-          lockBoard = false;
-        }, 650);
-      }
-    }
-
-    restartBtn.addEventListener("click", resetGame);
-
-    // init
-    createBoard();
-    loadBest();
+    });
   </script>
 </body>
 </html>
